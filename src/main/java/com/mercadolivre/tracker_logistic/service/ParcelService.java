@@ -83,4 +83,31 @@ public class ParcelService {
 
         return parcel;
     }
+
+    public List<ParcelEntity> getParcelsByFilter(String sender, String recipient) {
+        List<ParcelEntity> parcels;
+
+        if (sender != null && recipient != null) {
+            parcels = parcelRepository.findBySenderAndRecipient(sender, recipient);
+            if (parcels.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No parcels found for the given sender and recipient");
+            }
+        } else if (sender != null) {
+            parcels = parcelRepository.findBySender(sender);
+            if (parcels.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No parcels found for sender: " + sender);
+            }
+        } else if (recipient != null) {
+            parcels = parcelRepository.findByRecipient(recipient);
+            if (parcels.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No parcels found for recipient: " + recipient);
+            }
+        } else {
+            parcels = parcelRepository.findAll();
+            if (parcels.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No parcels available");
+            }
+        }
+        return parcels;
+    }
 }

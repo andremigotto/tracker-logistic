@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -38,6 +39,12 @@ public class ParcelController {
             @PathVariable("parcelId") UUID id,
             @RequestBody Map<String, String> request) {
         return ResponseEntity.ok(parcelService.updateParcelStatus(id, request.get("status")));
+    }
 
+    @GetMapping
+    public ResponseEntity<List<ParcelEntity>> getParcelsByFiter(
+            @RequestParam(required = false) String sender,
+            @RequestParam(required = false) String recipient) {
+        return ResponseEntity.ok(parcelService.getParcelsByFilter(sender, recipient));
     }
 }
