@@ -24,7 +24,6 @@ public class ExternalApiService {
     @Autowired
     private ApiConfig apiConfig;
 
-    @Cacheable(value = "ifHoliday", key = "'latest'", unless = "#result == null")
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000))
     public boolean checkIfHoliday(LocalDate estimatedDeliveryDate) {
         try {
