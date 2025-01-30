@@ -48,22 +48,32 @@ public class ParcelEntity {
 
     //Responsável por atualizar o status do pacote
     public void updateParcelStatus(String newStatus) {
-        //Mapping para validar as transições de status
-        Map<String, String> validTransitions = Map.of(
-                "CREATED", "IN_TRANSIT",
-                "IN_TRANSIT", "DELIVERED"
+
+        //Definindo as transições válidas de status
+        Map<String, List<String>> validTransitions = Map.of(
+                "CREATED", List.of("IN_TRANSIT", "CANCELLED"),
+                "IN_TRANSIT", List.of("DELIVERED")
         );
 
+        //Verifica se o pacote já foi cancelado
+        if ("CANCELLED".equals(this.status)) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Invalid status transition: Parcel is already cancelled");
+        }
+
+        //Verifica se o status informado é válido
         if (!validTransitions.containsKey(this.status)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Invalid status. Allowed values: CREATED, IN_TRANSIT, DELIVERED");
         }
 
+        //Verifica se a transição de status é válida
         if (!validTransitions.get(this.status).equals(newStatus)) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
                     "Invalid status transition: Status must follow CREATED -> IN_TRANSIT -> DELIVERED");
         }
 
+        //Atualiza a data de entrega caso o status seja "DELIVERED"
         if ("DELIVERED".equals(newStatus)) {
             this.deliveredAt = Instant.now();
         }
