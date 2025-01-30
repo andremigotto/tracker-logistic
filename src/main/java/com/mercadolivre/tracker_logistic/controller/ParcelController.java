@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -16,16 +17,27 @@ public class ParcelController {
     @Autowired
     private ParcelService parcelService;
 
+    //Responsavel por criar um novo pacote
     @PostMapping
     public ResponseEntity<ParcelEntity> createParcel(@RequestBody ParcelDTO parcelRequest) {
         ParcelEntity parcel = parcelService.createParcel(parcelRequest);
         return ResponseEntity.status(201).body(parcel);
     }
 
+    //Responsavel por consultar um pacote através do seu ID unico.
     @GetMapping("/{parcelId}")
     public ResponseEntity<ParcelEntity> getParcelById(
             @PathVariable("parcelId") UUID id,
             @RequestParam(defaultValue = "true") boolean showEvents) {
         return ResponseEntity.ok(parcelService.getParcelById(id, showEvents));
+    }
+
+    //Responsável por atualizar o status de um pacote.
+    @PatchMapping("/{parcelId}/status")
+    public ResponseEntity<ParcelEntity> updateParcelStatus(
+            @PathVariable("parcelId") UUID id,
+            @RequestBody Map<String, String> request) {
+        return ResponseEntity.ok(parcelService.updateParcelStatus(id, request.get("status")));
+
     }
 }

@@ -8,9 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -45,10 +48,26 @@ public class ParcelEntity {
 
     //Responsável por atualizar o status do pacote
     public void updateParcelStatus(String newStatus) {
-        if (("IN_TRANSIT".equals(newStatus) && !"CREATED".equals(this.status)) ||
-                ("DELIVERED".equals(newStatus) && !"IN_TRANSIT".equals(this.status))) {
-            throw new IllegalArgumentException("Invalid status transition");
+        //Mapping para validar as transições de status
+        Map<String, String> validTransitions = Map.of(
+                "CREATED", "IN_TRANSIT",
+                "IN_TRANSIT", "DELIVERED"
+        );
+
+        if (!validTransitions.containsKey(this.status)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Invalid status. Allowed values: CREATED, IN_TRANSIT, DELIVERED");
         }
+
+        if (!validTransitions.get(this.status).equals(newStatus)) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
+                    "Invalid status transition: Status must follow CREATED -> IN_TRANSIT -> DELIVERED");
+        }
+
+        if ("DELIVERED".equals(newStatus)) {
+            this.deliveredAt = Instant.now();
+        }
+
         this.status = newStatus;
         this.updatedAt = Instant.now();
     }

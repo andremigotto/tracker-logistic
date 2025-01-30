@@ -9,7 +9,9 @@ import com.mercadolivre.tracker_logistic.repositorie.EventRepository;
 import com.mercadolivre.tracker_logistic.repositorie.ParcelRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
@@ -58,12 +60,27 @@ public class ParcelService {
 
     public ParcelEntity getParcelById(UUID parcelId, boolean includeEvents) {
 
-        ParcelEntity parcel = parcelRepository.findById(parcelId).orElseThrow(() -> new EntityNotFoundException("Parcel not found"));
+        ParcelEntity parcel = parcelRepository.findById(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found"));
 
         if (includeEvents) {
             List<EventEntity> events = eventRepository.findByParcelId(parcelId);
             parcel.setEvents(events);
         }
+        return parcel;
+    }
+
+    public ParcelEntity updateParcelStatus(UUID parcelId, String newStatus) {
+
+        List<String> validStatuses = List.of("CREATED", "IN_TRANSIT", "DELIVERED");
+        if (!validStatuses.contains(newStatus)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status: must be one of CREATED, IN_TRANSIT, DELIVERED");
+        }
+
+        ParcelEntity parcel = parcelRepository.findById(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found"));
+
+        parcel.updateParcelStatus(newStatus);
+        parcelRepository.save(parcel);
+
         return parcel;
     }
 }
