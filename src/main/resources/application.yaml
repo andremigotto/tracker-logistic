@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/tracking_db?createDatabaseIfNotExist=true
+    username: root
+    password: admin
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+api:
+  dateNager:
+    url: "https://date.nager.at/api/v3/publicholidays/{year}/BR"
+  dogApi:
+    url: "https://dogapi.dog/api/v2/facts"
+
+cache:
+  type: redis  #Ativa o cache usando Redis
+  redis:
+    host: localhost
+    port: 6379
+    time-to-live: 600000 #(10 minutos de TTL)
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, caches, info
