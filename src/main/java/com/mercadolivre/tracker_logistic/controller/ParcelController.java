@@ -1,7 +1,7 @@
 package com.mercadolivre.tracker_logistic.controller;
 
-import com.mercadolivre.tracker_logistic.domain.parcel.ParcelDTO;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelEntity;
+import com.mercadolivre.tracker_logistic.domain.parcel.ParcelRecord;
 import com.mercadolivre.tracker_logistic.service.ParcelMaintenenceService;
 import com.mercadolivre.tracker_logistic.service.ParcelQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class ParcelController {
 
     //Responsavel por criar um novo pacote
     @PostMapping
-    public ResponseEntity<ParcelEntity> createParcel(@RequestBody ParcelDTO parcelRequest) {
+    public ResponseEntity<ParcelEntity> createParcel(@RequestBody ParcelRecord parcelRequest) {
         ParcelEntity parcel = parcelMaintenenceService.createParcel(parcelRequest);
         return ResponseEntity.status(201).body(parcel);
     }
