@@ -1,8 +1,8 @@
 package com.mercadolivre.tracker_logistic.service;
 
 import com.mercadolivre.tracker_logistic.domain.dispatch.DispatchEntity;
-import com.mercadolivre.tracker_logistic.domain.parcel.ParcelDTO;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelEntity;
+import com.mercadolivre.tracker_logistic.domain.parcel.ParcelRecord;
 import com.mercadolivre.tracker_logistic.repositorie.DispatchRepository;
 import com.mercadolivre.tracker_logistic.repositorie.ParcelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,23 +27,23 @@ public class ParcelMaintenenceService {
     private DispatchRepository dispatchRepository;
 
     //Responsável por criar um novo pacote
-    public ParcelEntity createParcel(ParcelDTO request) {
+    public ParcelEntity createParcel(ParcelRecord request) {
 
         Instant now = Instant.now();
 
         //Preenchendo o Parsel e Dispatch com informações do request
         ParcelEntity parcel = new ParcelEntity();
-        parcel.setDescription(request.getDescription());
-        parcel.setSender(request.getSender());
-        parcel.setRecipient(request.getRecipient());
+        parcel.setDescription(request.description());
+        parcel.setSender(request.sender());
+        parcel.setRecipient(request.recipient());
         parcel.setCreatedAt(now);
         parcel.setUpdatedAt(now);
         parcel.setStatus("CREATED");
 
         DispatchEntity dispatch = new DispatchEntity();
         dispatch.setParcel(parcel);
-        dispatch.setEstimatedDeliveryDate(request.getEstimatedDeliveryDate());
-        dispatch.setHoliday(externalApiService.checkIfHoliday(request.getEstimatedDeliveryDate()));
+        dispatch.setEstimatedDeliveryDate(request.estimatedDeliveryDate());
+        dispatch.setHoliday(externalApiService.checkIfHoliday(request.estimatedDeliveryDate()));
         dispatch.setFunFact(externalApiService.getDogFunFact());
 
         //Salvando os dados na base de dados via repository
@@ -73,7 +73,7 @@ public class ParcelMaintenenceService {
     public ParcelEntity cancelParcelById(UUID parcelId) {
         ParcelEntity parcel = parcelRepository.findById(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found"));
 
-        if (!"CREATED".equals(parcel.getStatus())) {
+        if ("IN_TRANSIT".equals(parcel.getStatus())) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Parcel cannot be cancelled: Only parcels that have not been shipped can be canceled");
         }
 
