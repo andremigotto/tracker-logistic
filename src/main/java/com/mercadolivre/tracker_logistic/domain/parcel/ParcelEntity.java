@@ -45,35 +45,4 @@ public class ParcelEntity {
     @OneToMany(mappedBy = "parcel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<EventEntity> events;
-
-
-    //Responsável por atualizar o status do pacote
-    public void updateParcelStatus(String newStatus) {
-        Map<String, Set<String>> validTransitions = Map.of(
-                "CREATED", Set.of("IN_TRANSIT"),
-                "IN_TRANSIT", Set.of("DELIVERED")
-        );
-
-        if ("CANCELLED".equals(this.status)) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Invalid status transition: Parcel is already cancelled");
-        }
-
-        if ("DELIVERED".equals(this.status)) {
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY,
-                    "Invalid status transition: Parcel is already delivered");
-        }
-
-        if (!validTransitions.getOrDefault(this.status, Set.of()).contains(newStatus)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Invalid status transition: Cannot transition from " + this.status + " to " + newStatus);
-        }
-
-        if ("DELIVERED".equals(newStatus)) {
-            this.deliveredAt = Instant.now();
-        }
-
-        this.status = newStatus;
-        this.updatedAt = Instant.now();
-    }
 }
