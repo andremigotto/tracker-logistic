@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,9 +25,17 @@ public class ParcelController {
 
     //Responsavel por criar um novo pacote
     @PostMapping
-    public ResponseEntity<ParcelEntity> createParcel(@RequestBody ParcelRecord parcelRequest) {
+    public ResponseEntity<ParcelEntity> createParcel(@Valid @RequestBody ParcelRecord parcelRequest) {
         ParcelEntity parcel = parcelMaintenenceService.createParcel(parcelRequest);
         return ResponseEntity.status(201).body(parcel);
+    }
+
+    //Responsável por atualizar o status de um pacote.
+    @PatchMapping("/{parcelId}/status")
+    public ResponseEntity<ParcelEntity> updateParcelStatus(
+            @PathVariable("parcelId") UUID id,
+            @RequestBody Map<String, String> request) {
+        return ResponseEntity.ok(parcelMaintenenceService.updateParcelStatus(id, request.get("status")));
     }
 
     //Responsável por cancelar um pacote através do seu ID unico.
@@ -50,14 +59,4 @@ public class ParcelController {
             @RequestParam(required = false) String recipient) {
         return ResponseEntity.ok(parcelQueryService.getParcelsByFilter(sender, recipient));
     }
-
-    //Responsável por atualizar o status de um pacote.
-    @PatchMapping("/{parcelId}/status")
-    public ResponseEntity<ParcelEntity> updateParcelStatus(
-            @PathVariable("parcelId") UUID id,
-            @RequestBody Map<String, String> request) {
-        return ResponseEntity.ok(parcelMaintenenceService.updateParcelStatus(id, request.get("status")));
-    }
-
-
 }
