@@ -1,5 +1,6 @@
 package com.mercadolivre.tracker_logistic.domain.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,6 @@ public class EventEntity {
 
     @ManyToOne
     @JoinColumn(name = "parcel_id", nullable = false)
+    @JsonIgnore
     private ParcelEntity parcel;
 }
