@@ -1,4 +1,4 @@
-package com.mercadolivre.tracker_logistic.repositorie;
+package com.mercadolivre.tracker_logistic.repository;
 
 import com.mercadolivre.tracker_logistic.domain.event.EventEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
