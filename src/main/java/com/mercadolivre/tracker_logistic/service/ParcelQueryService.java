@@ -2,8 +2,9 @@ package com.mercadolivre.tracker_logistic.service;
 
 import com.mercadolivre.tracker_logistic.domain.event.EventEntity;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelEntity;
-import com.mercadolivre.tracker_logistic.repositorie.EventRepository;
-import com.mercadolivre.tracker_logistic.repositorie.ParcelRepository;
+import com.mercadolivre.tracker_logistic.repository.EventRepository;
+import com.mercadolivre.tracker_logistic.repository.ParcelRepository;
+import com.mercadolivre.tracker_logistic.validation.ParcelValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,10 @@ public class ParcelQueryService {
     @Autowired
     private EventRepository eventRepository;
 
-    //Responsável por consultar um pacote através do seu ID unico.
+    //Consulta um pacote pelo seu ID único, incluindo eventos se solicitado
     public ParcelEntity getParcelById(UUID parcelId, boolean includeEvents) {
 
-        ParcelEntity parcel = parcelRepository.findById(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found"));
+        ParcelEntity parcel = ParcelValidation.validateParcelExists(parcelRepository, parcelId);
 
         if (includeEvents) {
             List<EventEntity> events = eventRepository.findByParcelId(parcelId);
@@ -33,7 +34,7 @@ public class ParcelQueryService {
         return parcel;
     }
 
-    //Responsável por consultar pacotes através de filtros
+    //Consulta uma lista de pacotes com base em filtros de remetente e/ou destinatário se solicitado filtro.
     public List<ParcelEntity> getParcelsByFilter(String sender, String recipient) {
         List<ParcelEntity> parcels;
 
