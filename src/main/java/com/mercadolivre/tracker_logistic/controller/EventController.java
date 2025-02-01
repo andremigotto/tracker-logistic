@@ -17,9 +17,9 @@ public class EventController {
 
     //Responsável por criar um novo evento de rastreamento atrelado a um Pacote por ID.
     @PostMapping
-    public ResponseEntity<Void> createTrackingEvent(
+    public ResponseEntity<String> createTrackingEvent(
             @Valid @RequestBody EventRecord eventRecord) {
-        eventService.createTrackingEvent(eventRecord);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        eventService.createEvent(eventRecord);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Event processing started");
     }
 }
