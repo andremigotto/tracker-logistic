@@ -27,10 +27,10 @@ public class ParcelQueryService {
 
         ParcelEntity parcel = ParcelValidation.validateParcelExists(parcelRepository, parcelId);
 
-        if (includeEvents) {
-            List<EventEntity> events = eventRepository.findByParcelId(parcelId);
-            parcel.setEvents(events);
+        if (!includeEvents) {
+            parcel.setEvents(null);
         }
+
         return parcel;
     }
 
