@@ -7,6 +7,7 @@ import com.mercadolivre.tracker_logistic.domain.parcel.ParcelRecord;
 import com.mercadolivre.tracker_logistic.repository.DispatchRepository;
 import com.mercadolivre.tracker_logistic.repository.ParcelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -63,6 +64,7 @@ public class ParcelMaintenenceService {
     }
 
     //Responsável por atualizar o status de um pacote
+    @CacheEvict(value = "parcels", key = "#parcelId")
     public ParcelEntity updateParcelStatus(UUID parcelId, StatusRecord statusRecord) {
 
         String newStatus = statusRecord.status();
@@ -72,7 +74,7 @@ public class ParcelMaintenenceService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status: must be one of CREATED, IN_TRANSIT, DELIVERED");
         }
 
-        ParcelEntity parcel = parcelRepository.findById(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found"));
+        ParcelEntity parcel = parcelRepository.findParcelWithoutEvents(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found"));
 
         //Metodo para validar a mudança de status
         validateStatusTransition(parcel, newStatus);
@@ -90,6 +92,7 @@ public class ParcelMaintenenceService {
     }
 
     //Responsável por cancelar um pacote através do seu ID unico.
+    @CacheEvict(value = "parcels", key = "#parcelId")
     public ParcelEntity cancelParcelById(UUID parcelId) {
         ParcelEntity parcel = parcelRepository.findById(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found"));
 

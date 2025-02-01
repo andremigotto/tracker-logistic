@@ -11,6 +11,13 @@ spring:
     enabled: true
     baseline-on-migrate: true
 
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 100
+        one-indexed-parameters: true
+
 api:
   dateNager:
     url: "https://date.nager.at/api/v3/publicholidays/{year}/BR"
@@ -29,3 +36,10 @@ management:
     web:
       exposure:
         include: health, metrics, caches, info
+
+logging:
+  level:
+    org.springframework.cache: DEBUG
+    com.mercadolivre.tracker_logistic.service: DEBUG
+
+
