@@ -8,13 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -42,7 +38,17 @@ public class ParcelEntity {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Instant deliveredAt;
 
-    @OneToMany(mappedBy = "parcel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parcel", cascade = CascadeType.ALL)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<EventEntity> events;
+
+    public ParcelEntity(UUID id, String description, String sender, String recipient, String status, Instant createdAt, Instant updatedAt) {
+        this.id = id;
+        this.description = description;
+        this.sender = sender;
+        this.recipient = recipient;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 }
