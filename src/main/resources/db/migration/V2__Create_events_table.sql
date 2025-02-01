@@ -1,8 +1,0 @@
-CREATE TABLE events (
-    id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
-    parcel_id BINARY(16) NOT NULL,
-    location VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    date_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_event_parcel FOREIGN KEY (parcel_id) REFERENCES parcels(id) ON DELETE CASCADE
-);

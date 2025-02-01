@@ -9,7 +9,7 @@ CREATE TABLE parcels (
     delivered_at DATETIME NULL
 );
 
-CREATE TABLE tracking_events (
+CREATE TABLE events (
     id BINARY(16) PRIMARY KEY DEFAULT (UUID_TO_BIN(UUID())),
     parcel_id BINARY(16) NOT NULL,
     location VARCHAR(255) NOT NULL,
