@@ -25,8 +25,8 @@ public class ParcelController {
 
     //Responsavel por criar um novo pacote
     @PostMapping
-    public ResponseEntity<ParcelEntity> createParcel(@Valid @RequestBody ParcelRecord parcelRequest) {
-        ParcelEntity parcel = parcelMaintenenceService.createParcel(parcelRequest);
+    public ResponseEntity<ParcelEntity> createParcel(@Valid @RequestBody ParcelRecord request) {
+        ParcelEntity parcel = parcelMaintenenceService.createParcel(request);
         return ResponseEntity.status(201).body(parcel);
     }
 
