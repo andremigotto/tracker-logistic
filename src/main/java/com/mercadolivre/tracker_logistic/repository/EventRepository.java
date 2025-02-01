@@ -7,5 +7,4 @@ import java.util.List;
 import java.util.UUID;
 
 public interface EventRepository extends JpaRepository<EventEntity, UUID> {
-    List<EventEntity> findByParcelId(UUID parcelId);
 }
