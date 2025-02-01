@@ -29,7 +29,7 @@ public class EventService {
 
     @Async
     @Transactional
-    public CompletableFuture<EventEntity> createEvent(EventRecord eventRecord) {
+    public void createEvent(EventRecord eventRecord) {
         logger.info("[START] Processando evento para o pacote {}", eventRecord.parcelId());
 
         ParcelEntity parcel = ParcelValidation.validateParcelExists(parcelRepository, eventRecord.parcelId());
@@ -43,6 +43,6 @@ public class EventService {
         eventRepository.save(event);
         logger.info("[END] Evento salvo para o pacote {} na thread {}", eventRecord.parcelId(), Thread.currentThread().getName());
 
-        return CompletableFuture.completedFuture(event);
+        CompletableFuture.completedFuture(event);
     }
 }
