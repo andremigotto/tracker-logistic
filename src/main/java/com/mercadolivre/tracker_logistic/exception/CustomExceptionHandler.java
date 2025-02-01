@@ -3,6 +3,8 @@ package com.mercadolivre.tracker_logistic.exception;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -32,10 +34,18 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("error", ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+        return ResponseEntity.badRequest().body(errors);
     }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleJsonParseError(HttpMessageNotReadableException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", "Invalid JSON format. Ensure all required fields are present and correctly formatted.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
 }

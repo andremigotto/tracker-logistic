@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -24,7 +25,7 @@ public class ExternalApiService {
     @Autowired
     private ApiConfig apiConfig;
 
-    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000))
+    @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000, multiplier = 2))
     public boolean checkIfHoliday(LocalDate estimatedDeliveryDate) {
         try {
             String url = apiConfig.getHolidayApiUrl(estimatedDeliveryDate.getYear());

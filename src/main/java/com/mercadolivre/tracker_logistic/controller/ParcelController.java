@@ -1,16 +1,17 @@
 package com.mercadolivre.tracker_logistic.controller;
 
+import com.mercadolivre.tracker_logistic.domain.status.StatusRecord;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelEntity;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelRecord;
 import com.mercadolivre.tracker_logistic.service.ParcelMaintenenceService;
 import com.mercadolivre.tracker_logistic.service.ParcelQueryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -27,15 +28,15 @@ public class ParcelController {
     @PostMapping
     public ResponseEntity<ParcelEntity> createParcel(@Valid @RequestBody ParcelRecord request) {
         ParcelEntity parcel = parcelMaintenenceService.createParcel(request);
-        return ResponseEntity.status(201).body(parcel);
+        return ResponseEntity.status(HttpStatus.CREATED).body(parcel);
     }
 
     //Responsável por atualizar o status de um pacote.
     @PatchMapping("/{parcelId}/status")
     public ResponseEntity<ParcelEntity> updateParcelStatus(
             @PathVariable("parcelId") UUID id,
-            @RequestBody Map<String, String> request) {
-        return ResponseEntity.ok(parcelMaintenenceService.updateParcelStatus(id, request.get("status")));
+            @Valid @RequestBody StatusRecord status) {
+        return ResponseEntity.ok(parcelMaintenenceService.updateParcelStatus(id, status));
     }
 
     //Responsável por cancelar um pacote através do seu ID unico.

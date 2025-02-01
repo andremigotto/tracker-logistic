@@ -1,5 +1,6 @@
 package com.mercadolivre.tracker_logistic.service;
 
+import com.mercadolivre.tracker_logistic.domain.status.StatusRecord;
 import com.mercadolivre.tracker_logistic.domain.dispatch.DispatchEntity;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelEntity;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelRecord;
@@ -62,8 +63,9 @@ public class ParcelMaintenenceService {
     }
 
     //Responsável por atualizar o status de um pacote
-    public ParcelEntity updateParcelStatus(UUID parcelId, String newStatus) {
+    public ParcelEntity updateParcelStatus(UUID parcelId, StatusRecord statusRecord) {
 
+        String newStatus = statusRecord.status();
 
         List<String> validStatuses = List.of("CREATED", "IN_TRANSIT", "DELIVERED");
         if (!validStatuses.contains(newStatus)) {
