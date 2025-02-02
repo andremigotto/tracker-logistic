@@ -15,11 +15,11 @@ public class AsyncConfig {
     private static final Logger logger = LoggerFactory.getLogger(AsyncConfig.class);
 
     @Bean(name = "asyncExecutor")
-    public Executor asyncExecutor() {
-        executor.setCorePoolSize(50);
-        executor.setMaxPoolSize(200);
-        executor.setQueueCapacity(5000);
-        executor.setKeepAliveSeconds(30);
+    public Executor asyncExecutor(AsyncProperties asyncProperties) {
+        executor.setCorePoolSize(asyncProperties.getCorePoolSize());
+        executor.setMaxPoolSize(asyncProperties.getMaxPoolSize());
+        executor.setQueueCapacity(asyncProperties.getQueueCapacity());
+        executor.setKeepAliveSeconds(asyncProperties.getKeepAliveSeconds());
         executor.setThreadNamePrefix("EventProcessor-");
 
         executor.setRejectedExecutionHandler((r, executor) -> {
