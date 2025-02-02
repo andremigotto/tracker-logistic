@@ -1,6 +1,7 @@
 package com.mercadolivre.tracker_logistic.controller;
 
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelPageResponse;
+import com.mercadolivre.tracker_logistic.domain.status.StatusEnumeration;
 import com.mercadolivre.tracker_logistic.domain.status.StatusRecord;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelEntity;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelRecord;
@@ -60,7 +61,7 @@ public class ParcelController {
 
         return ResponseEntity.ok()
                 .header("X-Parcel-ID", parcel.getId().toString())
-                .header("X-Status", "CANCELLED")
+                .header("X-Status", StatusEnumeration.CANCELED.toString())
                 .body(parcel);
     }
 

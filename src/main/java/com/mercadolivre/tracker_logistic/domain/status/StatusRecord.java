@@ -1,6 +1,6 @@
 package com.mercadolivre.tracker_logistic.domain.status;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-public record StatusRecord(@NotBlank String status) {
+public record StatusRecord(@NotNull StatusEnumeration status) {
 }

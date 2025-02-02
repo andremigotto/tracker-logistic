@@ -1,5 +1,6 @@
 package com.mercadolivre.tracker_logistic.service;
 
+import com.mercadolivre.tracker_logistic.domain.status.StatusEnumeration;
 import com.mercadolivre.tracker_logistic.domain.status.StatusRecord;
 import com.mercadolivre.tracker_logistic.domain.dispatch.DispatchEntity;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelEntity;
@@ -26,7 +27,10 @@ public class ParcelMaintenenceService {
     private final DispatchRepository dispatchRepository;
 
     //Variavel de transações para validação do fluxo de status.
-    private final Map<String, Set<String>> validTransitions = Map.of("CREATED", Set.of("IN_TRANSIT"), "IN_TRANSIT", Set.of("DELIVERED"));
+    private final Map<StatusEnumeration, Set<StatusEnumeration>> validTransitions = Map.of(
+            StatusEnumeration.CREATED, Set.of(StatusEnumeration.IN_TRANSIT),
+            StatusEnumeration.IN_TRANSIT, Set.of(StatusEnumeration.DELIVERED)
+    );
 
     public ParcelMaintenenceService(ExternalApiService externalApiService, ParcelRepository parcelRepository, DispatchRepository dispatchRepository) {
         this.externalApiService = externalApiService;
@@ -46,7 +50,7 @@ public class ParcelMaintenenceService {
         parcel.setRecipient(request.recipient());
         parcel.setCreatedAt(now);
         parcel.setUpdatedAt(now);
-        parcel.setStatus("CREATED");
+        parcel.setStatus(StatusEnumeration.CREATED.toString());
 
         DispatchEntity dispatch = new DispatchEntity();
         dispatch.setParcel(parcel);
@@ -65,20 +69,15 @@ public class ParcelMaintenenceService {
     @CacheEvict(value = "parcels", key = "#parcelId", allEntries = true)
     public ParcelEntity updateParcelStatus(UUID parcelId, StatusRecord statusRecord) {
 
-        String newStatus = statusRecord.status();
-
-        List<String> validStatuses = List.of("CREATED", "IN_TRANSIT", "DELIVERED");
-        if (!validStatuses.contains(newStatus)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status: must be one of CREATED, IN_TRANSIT, DELIVERED");
-        }
+        String newStatus = String.valueOf(statusRecord.status());
 
         ParcelEntity parcel = parcelRepository.findParcelWithoutEvents(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found"));
 
         //Metodo para validar a mudança de status
-        validateStatusTransition(parcel, newStatus);
+        validateStatusTransition(parcel, StatusEnumeration.valueOf(newStatus));
 
         //Atualizando o status do pacote
-        if ("DELIVERED".equals(newStatus)) {
+        if (StatusEnumeration.DELIVERED.toString().equals(newStatus)) {
             parcel.setDeliveredAt(Instant.now());
             parcel.setExpiredAt(Instant.now().plus(30, ChronoUnit.DAYS));
         }
@@ -95,15 +94,15 @@ public class ParcelMaintenenceService {
     public ParcelEntity cancelParcelById(UUID parcelId) {
         ParcelEntity parcel = parcelRepository.findParcelWithoutEvents(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found by ID"));
 
-        if ("IN_TRANSIT".equals(parcel.getStatus())) {
+        if (StatusEnumeration.IN_TRANSIT.toString().equals(parcel.getStatus())) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Parcel cannot be cancelled: Only parcels that have not been shipped can be canceled");
         }
 
-        if ("CANCELLED".equals(parcel.getStatus())) {
+        if (StatusEnumeration.CANCELED.toString().equals(parcel.getStatus())) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "This Parcel is already cancelled");
         }
 
-        parcel.setStatus("CANCELLED");
+        parcel.setStatus(StatusEnumeration.CANCELED.toString());
         parcel.setExpiredAt(Instant.now().plus(30, ChronoUnit.DAYS));
         parcel.setUpdatedAt(Instant.now());
         parcelRepository.save(parcel);
@@ -112,14 +111,14 @@ public class ParcelMaintenenceService {
     }
 
     //Metodo de validação da transição de status
-    private void validateStatusTransition(ParcelEntity parcel, String newStatus) {
-        String actualStatus = parcel.getStatus();
+    private void validateStatusTransition(ParcelEntity parcel, StatusEnumeration newStatus) {
+        StatusEnumeration actualStatus = StatusEnumeration.valueOf(parcel.getStatus());
 
-        if ("CANCELLED".equals(actualStatus)) {
+        if (StatusEnumeration.CANCELED.equals(actualStatus)) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid status transition: Parcel is already cancelled");
         }
 
-        if ("DELIVERED".equals(actualStatus)) {
+        if (StatusEnumeration.DELIVERED.equals(actualStatus)) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid status transition: Parcel is already delivered");
         }
 
@@ -127,5 +126,4 @@ public class ParcelMaintenenceService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status transition: Cannot transition from " + actualStatus + " to " + newStatus);
         }
     }
-
 }
