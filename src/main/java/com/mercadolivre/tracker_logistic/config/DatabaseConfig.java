@@ -10,9 +10,9 @@ import javax.sql.DataSource;
 @Configuration
 public class DatabaseConfig {
 
-    private final DatabaseConfigProperties hikariProperties;
+    private final DatabaseProperties hikariProperties;
 
-    public DatabaseConfig(DatabaseConfigProperties hikariProperties) {
+    public DatabaseConfig(DatabaseProperties hikariProperties) {
         this.hikariProperties = hikariProperties;
     }
 

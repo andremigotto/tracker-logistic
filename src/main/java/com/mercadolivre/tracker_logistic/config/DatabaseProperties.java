@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Setter
 @Component
 @ConfigurationProperties(prefix = "spring.datasource.hikari")
-public class DatabaseConfigProperties {
+public class DatabaseProperties {
     private int maximumPoolSize;
     private int minimumIdle;
     private int connectionTimeout;
