@@ -7,6 +7,14 @@ spring:
     username: root
     password: admin
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      keepalive-time: 30000
+      validation-timeout: 5000
 
   flyway:
     enabled: true
@@ -42,4 +50,5 @@ logging:
   level:
     root: INFO
     com.mercadolivre: DEBUG
-    org.springframework: WAR
+    org.springframework: WARN
+    com.zaxxer.hikari: DEBUG
