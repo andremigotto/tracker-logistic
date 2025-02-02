@@ -2,7 +2,6 @@ package com.mercadolivre.tracker_logistic.service;
 
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelEntity;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelPageResponse;
-import com.mercadolivre.tracker_logistic.repository.EventRepository;
 import com.mercadolivre.tracker_logistic.repository.ParcelRepository;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -17,11 +16,9 @@ import java.util.UUID;
 public class ParcelQueryService {
 
     private final ParcelRepository parcelRepository;
-    private final EventRepository eventRepository;
 
-    public ParcelQueryService(ParcelRepository parcelRepository, EventRepository eventRepository) {
+    public ParcelQueryService(ParcelRepository parcelRepository) {
         this.parcelRepository = parcelRepository;
-        this.eventRepository = eventRepository;
     }
 
     //Consulta um pacote pelo seu ID único, excluindo eventos se solicitado
