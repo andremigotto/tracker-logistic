@@ -1,6 +1,5 @@
 package com.mercadolivre.tracker_logistic.config;
 
-import com.mercadolivre.tracker_logistic.exception.AsyncExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +14,6 @@ public class AsyncConfig {
     private final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     private static final Logger logger = LoggerFactory.getLogger(AsyncConfig.class);
 
-
     @Bean(name = "asyncExecutor")
     public Executor asyncExecutor() {
         executor.setCorePoolSize(50);
@@ -25,8 +23,8 @@ public class AsyncConfig {
         executor.setThreadNamePrefix("EventProcessor-");
 
         executor.setRejectedExecutionHandler((r, executor) -> {
-            logger.error("🚨 Async Task Rejected: A fila de execução está cheia!");
-            throw new RuntimeException("A fila de execução assíncrona está cheia. Tente novamente mais tarde.");
+            logger.error("Async Task Rejected: A fila de execução está cheia!");
+            throw new RuntimeException("A fila de execução assíncrona está cheia e o seu dado não foi processado. Aguarde para enviar novamente.");
         });
 
         executor.initialize();

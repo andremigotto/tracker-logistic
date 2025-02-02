@@ -1,6 +1,6 @@
 package com.mercadolivre.tracker_logistic.exception;
 
-import org.springframework.dao.DataIntegrityViolationException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,13 +42,6 @@ public class CustomExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, String>> handleJsonParseError(HttpMessageNotReadableException ex) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("error", "Invalid JSON format. Ensure all required fields are present and correctly formatted.");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-    }
-
     @ExceptionHandler(AsyncExecutionException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, Object> handleAsyncException(AsyncExecutionException ex) {
@@ -58,6 +50,21 @@ public class CustomExceptionHandler {
         errorResponse.put("error", "Async Execution Error");
         errorResponse.put("message", ex.getMessage());
         return errorResponse;
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidJson(HttpMessageNotReadableException ex) {
+        Map<String, Object> errorResponse = new HashMap<>();
+
+        errorResponse.put("status", HttpStatus.BAD_REQUEST.value());
+
+        if (ex.getCause() instanceof MismatchedInputException) {
+            errorResponse.put("message", "Invalid data type in request body. Check field types.");
+        } else {
+            errorResponse.put("message", ex.getMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
 }

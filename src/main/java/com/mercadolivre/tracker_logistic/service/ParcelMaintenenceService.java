@@ -6,13 +6,13 @@ import com.mercadolivre.tracker_logistic.domain.parcel.ParcelEntity;
 import com.mercadolivre.tracker_logistic.domain.parcel.ParcelRecord;
 import com.mercadolivre.tracker_logistic.repository.DispatchRepository;
 import com.mercadolivre.tracker_logistic.repository.ParcelRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,20 +21,18 @@ import java.util.UUID;
 @Service
 public class ParcelMaintenenceService {
 
-    @Autowired
-    private ExternalApiService externalApiService;
-
-    @Autowired
-    private ParcelRepository parcelRepository;
-
-    @Autowired
-    private DispatchRepository dispatchRepository;
+    private final ExternalApiService externalApiService;
+    private final ParcelRepository parcelRepository;
+    private final DispatchRepository dispatchRepository;
 
     //Variavel de transações para validação do fluxo de status.
-    private Map<String, Set<String>> validTransitions = Map.of(
-            "CREATED", Set.of("IN_TRANSIT"),
-            "IN_TRANSIT", Set.of("DELIVERED")
-    );
+    private final Map<String, Set<String>> validTransitions = Map.of("CREATED", Set.of("IN_TRANSIT"), "IN_TRANSIT", Set.of("DELIVERED"));
+
+    public ParcelMaintenenceService(ExternalApiService externalApiService, ParcelRepository parcelRepository, DispatchRepository dispatchRepository) {
+        this.externalApiService = externalApiService;
+        this.parcelRepository = parcelRepository;
+        this.dispatchRepository = dispatchRepository;
+    }
 
     //Responsável por criar um novo pacote
     public ParcelEntity createParcel(ParcelRecord request) {
@@ -64,7 +62,7 @@ public class ParcelMaintenenceService {
     }
 
     //Responsável por atualizar o status de um pacote
-    @CacheEvict(value = "parcels", key = "#parcelId")
+    @CacheEvict(value = "parcels", key = "#parcelId", allEntries = true)
     public ParcelEntity updateParcelStatus(UUID parcelId, StatusRecord statusRecord) {
 
         String newStatus = statusRecord.status();
@@ -82,6 +80,7 @@ public class ParcelMaintenenceService {
         //Atualizando o status do pacote
         if ("DELIVERED".equals(newStatus)) {
             parcel.setDeliveredAt(Instant.now());
+            parcel.setExpiredAt(Instant.now().plus(30, ChronoUnit.DAYS));
         }
 
         parcel.setStatus(newStatus);
@@ -92,15 +91,20 @@ public class ParcelMaintenenceService {
     }
 
     //Responsável por cancelar um pacote através do seu ID unico.
-    @CacheEvict(value = "parcels", key = "#parcelId")
+    @CacheEvict(value = "parcels", key = "#parcelId", allEntries = true)
     public ParcelEntity cancelParcelById(UUID parcelId) {
-        ParcelEntity parcel = parcelRepository.findById(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found"));
+        ParcelEntity parcel = parcelRepository.findParcelWithoutEvents(parcelId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found by ID"));
 
         if ("IN_TRANSIT".equals(parcel.getStatus())) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Parcel cannot be cancelled: Only parcels that have not been shipped can be canceled");
         }
 
+        if ("CANCELLED".equals(parcel.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "This Parcel is already cancelled");
+        }
+
         parcel.setStatus("CANCELLED");
+        parcel.setExpiredAt(Instant.now().plus(30, ChronoUnit.DAYS));
         parcel.setUpdatedAt(Instant.now());
         parcelRepository.save(parcel);
 

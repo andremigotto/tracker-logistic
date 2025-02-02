@@ -1,7 +1,6 @@
 package com.mercadolivre.tracker_logistic.service;
 
 import com.mercadolivre.tracker_logistic.config.ApiConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -19,11 +17,13 @@ import java.util.*;
 @Service
 public class ExternalApiService {
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+    private final ApiConfig apiConfig;
 
-    @Autowired
-    private ApiConfig apiConfig;
+    public ExternalApiService(RestTemplate restTemplate, ApiConfig apiConfig) {
+        this.restTemplate = restTemplate;
+        this.apiConfig = apiConfig;
+    }
 
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 2000, multiplier = 2))
     public boolean checkIfHoliday(LocalDate estimatedDeliveryDate) {
