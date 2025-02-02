@@ -45,6 +45,15 @@ management:
     web:
       exposure:
         include: health, metrics, caches, info
+    metrics:
+      enabled:
+        hiraki: true
+
+async:
+  core-pool-size: 10
+  max-pool-size: 50
+  queue-capacity: 100
+  keep-alive-seconds: 60
 
 logging:
   level:
