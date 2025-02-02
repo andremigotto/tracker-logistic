@@ -1,6 +1,7 @@
 package com.mercadolivre.tracker_logistic.domain.parcel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mercadolivre.tracker_logistic.domain.event.EventEntity;
 import jakarta.persistence.*;
@@ -41,6 +42,9 @@ public class ParcelEntity {
     @OneToMany(mappedBy = "parcel", cascade = CascadeType.ALL)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<EventEntity> events;
+
+    @JsonIgnore
+    private Instant expiredAt;
 
     public ParcelEntity(UUID id, String description, String sender, String recipient, String status, Instant createdAt, Instant updatedAt) {
         this.id = id;
