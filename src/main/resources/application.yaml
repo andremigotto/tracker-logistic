@@ -45,9 +45,9 @@ management:
     web:
       exposure:
         include: health, metrics, caches, info
-    metrics:
-      enabled:
-        hiraki: true
+  metrics:
+    enable:
+      hikari: true
 
 async:
   core-pool-size: 10
@@ -58,6 +58,7 @@ async:
 logging:
   level:
     root: INFO
-    com.mercadolivre: DEBUG
+    com.mercadolivre.tracker_logistic: DEBUG
     org.springframework: WARN
+    org.hibernate.SQL: INFO
     com.zaxxer.hikari: DEBUG
