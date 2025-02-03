@@ -31,18 +31,29 @@ public class EventService {
     @Async
     @Transactional
     public void createEvent(EventRecord eventRecord) {
-        logger.info("[START] Processando evento para o pacote {}", eventRecord.parcelId());
+        String threadName = Thread.currentThread().getName();
+        logger.info("[START] Processando evento para o pacote {} na thread {}", eventRecord.parcelId(), threadName);
 
-        ParcelEntity parcel = parcelRepository.findById(eventRecord.parcelId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found by ID"));
+
+        ParcelEntity parcel = parcelRepository.findById(eventRecord.parcelId()).orElseThrow(() -> {
+            logger.error("[ERROR] Pacote não encontrado para evento. ID: {}", eventRecord.parcelId());
+            return new ResponseStatusException(HttpStatus.NOT_FOUND, "Parcel not found by ID");
+        });
 
         EventEntity event = new EventEntity();
+
         event.setParcel(parcel);
         event.setLocation(eventRecord.location());
         event.setDescription(eventRecord.description());
         event.setDateTime(eventRecord.date());
 
-        eventRepository.save(event);
+        try {
+            eventRepository.save(event);
+            logger.info("[SUCCESS] Evento salvo para o pacote {} na thread {}", eventRecord.parcelId(), threadName);
+        } catch (Exception e) {
+            logger.error("[ERROR] Falha ao salvar evento para o pacote {}. Erro: {}", eventRecord.parcelId(), e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao salvar evento");
+        }
         logger.info("[END] Evento salvo para o pacote {} na thread {}", eventRecord.parcelId(), Thread.currentThread().getName());
     }
 }
