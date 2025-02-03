@@ -1,7 +1,7 @@
 # 📦 Tracker Logistic API
 
 **Tracker Logistic API** é um sistema de rastreamento de pacotes e eventos de logística, desenvolvido com **Spring Boot
-**, **MySQL**, **Redis** e **mensageria assíncrona**.
+**, **MySQL**, **Redis** e **Assincronismo (Spring Async)**.
 
 ## 🚀 Tecnologias Utilizadas
 
