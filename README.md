@@ -1,6 +1,7 @@
 # 📦 Tracker Logistic API
 
-**Tracker Logistic API** é um sistema de rastreamento de pacotes e eventos de logística, desenvolvido com **Spring Boot**, **MySQL**, **Redis** e **mensageria assíncrona**.
+**Tracker Logistic API** é um sistema de rastreamento de pacotes e eventos de logística, desenvolvido com **Spring Boot
+**, **MySQL**, **Redis** e **mensageria assíncrona**.
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -13,9 +14,9 @@
 - **Spring Scheduler**
 - **HikariCP (Gerenciamento de Conexões)**
 - **MySQL 8**
-- **Docker / Docker-Compose**
 - **Log4j2 (Logging)**
-- **JUnit 5 e Mockito (Por conta do tempo da entrega e trabalho não foi possivel realziar os testes unitarios da aplicação)**
+- **JUnit 5 e Mockito (Por conta do tempo da entrega e trabalho não foi possivel realziar os testes unitarios da
+  aplicação)**
 
 ---
 
@@ -26,37 +27,19 @@
 Antes de rodar a aplicação, certifique-se de ter instalado:
 
 - **Java 21**
-- **Docker e Docker Compose** (caso queira rodar MySQL e Redis localmente)
-- **Maven** (caso queira rodar sem Docker)
+- **Maven**
+- A aplicação ainda não está com o docker-compose, então é necessário ter o **MySQL** instalado na sua máquina.
 
 ### **2️⃣ Configuração do Banco de Dados**
 
-A aplicação utiliza **MySQL** como banco de dados. Você pode rodar **localmente** ou usar **Docker**.
-
-#### ✅ **Opção 1: Rodar MySQL e Redis via Docker**
-
-Execute o seguinte comando:
-
-```bash
-docker-compose up -d --build
-```
-
-Isso iniciará:
-
-- \*\*MySQL na porta \*\***`3307`**
-- \*\*Redis na porta \*\***`6379`**
-
-Caso queira **parar os containers**, execute:
-
-```bash
-docker-compose down
-```
+A aplicação utiliza **MySQL** como banco de dados.
 
 ### **3️⃣ Rodar a Aplicação**
 
 Você pode rodar a aplicação de duas formas:
 
 #### ✅ **Opção 1: Usando Maven**
+
 Para rodar com essa opção é necessário ter o maven instalado na sua maquina.
 
 ```bash
@@ -67,27 +50,6 @@ mvn spring-boot:run
 
 ```bash
 java -jar target/tracker-logistic.jar
-```
-
----
-
-
-## 🌍 **Variáveis de Ambiente**
-
-A aplicação utiliza variáveis de ambiente para configuração. **Crie um arquivo** `.env` **ou adicione no** `application.yml`:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3307/tracking_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-    username: root
-    password: admin
-  cache:
-    type: redis
-    redis:
-      host: localhost
-      port: 6379
-      time-to-live: 600000
 ```
 
 ---
@@ -146,7 +108,8 @@ spring:
   "status": "CREATED",
   "createdAt": "2025-01-20T10:00:00Z",
   "updatedAt": "2025-01-20T10:00:00Z",
-  "deliveredAt": "2025-01-20T10:00:00Z" //Preenchido apenas quando for entrengue
+  "deliveredAt": "2025-01-20T10:00:00Z"
+  //Preenchido apenas quando for entrengue
 }
 ```
 
@@ -179,21 +142,21 @@ Para cada atualização que ocorrer em um pacote, devemos receber um evento que 
 
 ```json
 {
- "packageId": "pacote-12345",
- "location": "Centro de Distribuição São Paulo",
- "description": "Pacote chegou ao centro de distribuição",
- "date": "2025-01-20T11:00:00Z"
+  "packageId": "pacote-12345",
+  "location": "Centro de Distribuição São Paulo",
+  "description": "Pacote chegou ao centro de distribuição",
+  "date": "2025-01-20T11:00:00Z"
 }
 ```
 
 ---
-
 
 ### 🔍 **5. Consultar um Pacote por ID**
 
 **`GET /api/parcels/{parcelId}`**
 
 **Parâmetros opcionais:**
+
 - `showEvents=true` (default) → Retorna os eventos do pacote.
 - `showEvents=false` → Exclui os eventos do retorno.
 
@@ -204,6 +167,7 @@ Para cada atualização que ocorrer em um pacote, devemos receber um evento que 
 **`GET /api/parcels?sender=Loja+ABC&recipient=João+Silva&page=0&size=10`**
 
 **Parâmetros:**
+
 - `sender` → Filtrar por remetente.
 - `recipient` → Filtrar por destinatário.
 - `page` → Número da página (default: 0).
@@ -211,9 +175,8 @@ Para cada atualização que ocorrer em um pacote, devemos receber um evento que 
 
 ---
 
-
 ## 🚀 **Melhorias Futuras**
-
+- Implementação docker/docker-compose para facilitar a execução da aplicação.
 - Implementação de **Kafka/RabbitMQ** para eventos de rastreamento assíncronos.
 - Melhorias na política de expurgo de dados antigos.
 - Implementação de **Spring Security** para autenticação e autorização.
