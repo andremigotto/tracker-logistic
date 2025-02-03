@@ -2,22 +2,10 @@ server:
   port: 8080
 
 spring:
-  redis:
-    host: redis
-    port: 6379
-    timeout: 6000  # Tempo limite para conexões Redis
-    lettuce:
-      pool:
-        max-active: 10
-        max-idle: 5
-        min-idle: 2
-        time-between-eviction-runs: 60000
-  cache:
-    type: redis
   datasource:
-    url: jdbc:mysql://mysql:3307/tracking_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
-    username: tracker
-    password: trackerpassword
+    url: jdbc:mysql://localhost:3306/tracking_db?useSSL=false&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    username: root
+    password: admin
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 50
@@ -31,7 +19,6 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
-    validate-on-migrate: true
 
   data:
     web:
@@ -45,6 +32,13 @@ api:
     url: "https://date.nager.at/api/v3/publicholidays/{year}/BR"
   dogApi:
     url: "https://dogapi.dog/api/v2/facts"
+
+cache:
+  type: redis  #Ativa o cache usando Redis
+  redis:
+    host: localhost
+    port: 6379
+    time-to-live: 600000 #(10 minutos de TTL)
 
 management:
   endpoints:
